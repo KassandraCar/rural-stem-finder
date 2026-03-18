@@ -283,7 +283,7 @@ To add a new key, add an entry to the `t` object with all 5 language values.
 
 - **[OPPORTUNITY_RANKING_GUIDE.md](OPPORTUNITY_RANKING_GUIDE.md)** - Complete guide to the ranking system, how it works, and how to customize scoring weights
 - **[FIRST_GEN_MODE_GUIDE.md](FIRST_GEN_MODE_GUIDE.md)** - Detailed explanation of First-Gen Mode features, benefits, and implementation
-
+- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Includes Architecture Decisions, Ranking Logic Deep Dive, MCP Server Purpose, Data Flow and Kiro Usage Analysis. 
 ## 🛠️ Tech Stack
 
 - Next.js 16 (App Router) + React + TypeScript
