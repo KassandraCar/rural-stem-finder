@@ -52,9 +52,6 @@ export const SCORING_WEIGHTS = {
   },
 };
 
-// Maximum possible score for normalization (can exceed 100 with first-gen bonuses)
-const MAX_SCORE = 100;
-
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -114,7 +111,7 @@ function calculateProfileScore(
   }
 
   // Grade level match (0-15 points)
-  if (profile.gradeLevel && opportunity.gradeLevel.includes(profile.gradeLevel as any)) {
+  if (profile.gradeLevel && opportunity.gradeLevel.includes(profile.gradeLevel as "high-school" | "college")) {
     score += weights.gradeLevelMatch;
     bonuses.push("Grade level match");
   } else if (profile.gradeLevel) {
@@ -399,7 +396,7 @@ export function rankOpportunities(
   // Step 1: Apply hard filters
   const filtered = opportunities.filter((o) => {
     // Grade level filter
-    if (filters.gradeLevel && !o.gradeLevel.includes(filters.gradeLevel as any)) {
+    if (filters.gradeLevel && !o.gradeLevel.includes(filters.gradeLevel as "high-school" | "college")) {
       return false;
     }
 

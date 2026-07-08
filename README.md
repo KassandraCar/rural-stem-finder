@@ -147,6 +147,20 @@ export const SCORING_WEIGHTS = {
 
 [Read the full ranking system guide →](OPPORTUNITY_RANKING_GUIDE.md)
 
+## Running Tests
+
+```bash
+npm test
+```
+
+Unit tests (Vitest) cover the opportunity scoring and ranking system in `src/lib/opportunityScoring.test.ts`.
+
+## Deployment (Vercel)
+
+1. Push this repo to GitHub and import it at [vercel.com/new](https://vercel.com/new) — Next.js is auto-detected.
+2. (Optional) Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` under Project → Settings → Environment Variables to enable login and cross-device sync.
+3. If using Supabase, run `supabase-setup.sql` in your project's SQL Editor and add your Vercel URL to Supabase Auth → URL Configuration → Redirect URLs.
+
 ## Environment Variables
 
 Create `rural-stem-finder/.env.local`:
@@ -156,7 +170,7 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-Both are optional. The app works fully without Supabase using localStorage. Supabase is considered unconfigured (and the app falls back to localStorage) if either variable is missing or still set to a placeholder value — this is detected via `isSupabaseConfigured()` in `src/lib/supabase.ts`, which delegates to `createClient()` returning `null`.
+Both are optional (see `.env.example`). The app works fully without Supabase using localStorage. Supabase is considered unconfigured (and the app falls back to localStorage) if either variable is missing — detected via `isSupabaseConfigured()` in `src/lib/supabase.ts`.
 
 The sign-in button and user menu in the Navbar are always rendered regardless of whether Supabase is configured. If Supabase is not configured, auth actions will have no effect (no session will be created or persisted).
 
@@ -214,7 +228,7 @@ Volunteer opportunities are stored in `src/data/volunteer.ts`:
 
 ## MCP Opportunity Server
 
-A standalone [Model Context Protocol](https://modelcontextprotocol.io) server lives at `mcp-opportunity-server/`. It exposes two tools:
+A standalone, dependency-free [Model Context Protocol](https://modelcontextprotocol.io) server lives at `mcp-server.js` in the repo root. It exposes two tools:
 
 ### `search_stem_opportunities`
 
@@ -245,10 +259,10 @@ Rewrites jargon-heavy opportunity text into plain, first-gen-friendly language.
 ### Running the MCP server
 
 ```bash
-cd mcp-opportunity-server
-npm install
-node server.js
+node mcp-server.js
 ```
+
+No dependencies required.
 
 The server communicates over stdio using JSON-RPC 2.0 and is configured in `.kiro/settings/mcp.json`.
 

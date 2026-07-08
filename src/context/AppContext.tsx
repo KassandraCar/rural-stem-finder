@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import type { Language } from "@/data/translations";
@@ -24,8 +24,8 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  // Only create supabase client when configured
-  const supabase = isSupabaseConfigured() ? createClient()! : null;
+  // Only create supabase client when configured (memoized so effects can depend on it)
+  const supabase = useMemo(() => (isSupabaseConfigured() ? createClient()! : null), []);
 
   const [saved, setSaved] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<Record<string, ApplicationStatus>>({});
@@ -51,19 +51,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         });
     } else {
-      // fallback to localStorage
-      const s = localStorage.getItem("saved");
-      const st = localStorage.getItem("statuses");
-      const fg = localStorage.getItem("firstGenMode");
-      const lang = localStorage.getItem("language");
-      const loc = localStorage.getItem("userLocation");
-      if (s) setSaved(JSON.parse(s));
-      if (st) setStatuses(JSON.parse(st));
-      if (fg) setFirstGenMode(JSON.parse(fg));
-      if (lang) setLanguageState(JSON.parse(lang) as Language);
-      if (loc) setUserLocationState(loc);
+      // Fallback to localStorage. Hydrate in a microtask so state updates
+      // happen asynchronously (same as the Supabase branch above).
+      queueMicrotask(() => {
+        const s = localStorage.getItem("saved");
+        const st = localStorage.getItem("statuses");
+        const fg = localStorage.getItem("firstGenMode");
+        const lang = localStorage.getItem("language");
+        const loc = localStorage.getItem("userLocation");
+        if (s) setSaved(JSON.parse(s));
+        if (st) setStatuses(JSON.parse(st));
+        if (fg) setFirstGenMode(JSON.parse(fg));
+        if (lang) setLanguageState(JSON.parse(lang) as Language);
+        if (loc) setUserLocationState(loc);
+      });
     }
-  }, [user]);
+  }, [user, supabase]);
 
   // Persist to Supabase or localStorage
   const persist = async (patch: Record<string, unknown>) => {
