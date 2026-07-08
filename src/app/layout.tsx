@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
 import { AppProvider } from "@/context/AppContext";
+import OnboardingQuiz from "@/components/OnboardingQuiz";
 
 export const metadata: Metadata = {
   title: "Rural STEM Opportunity Finder",
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <AppProvider>
             <Navbar />
+            <OnboardingQuiz />
             <main>
               {children}
             </main>

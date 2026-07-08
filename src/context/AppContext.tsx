@@ -6,6 +6,15 @@ import type { Language } from "@/data/translations";
 
 type ApplicationStatus = "not-started" | "in-progress" | "applied";
 
+export type StudentProfile = {
+  name: string;
+  gradeLevel: "high-school" | "college" | "";
+  interests: string[];
+  onboarded: boolean; // true once the welcome quiz is finished or skipped
+};
+
+const emptyProfile: StudentProfile = { name: "", gradeLevel: "", interests: [], onboarded: false };
+
 type AppContextType = {
   saved: string[];
   toggleSave: (id: string) => void;
@@ -18,6 +27,10 @@ type AppContextType = {
   setLanguage: (lang: Language) => void;
   userLocation: string;
   setUserLocation: (loc: string) => void;
+  profile: StudentProfile;
+  setProfile: (p: StudentProfile) => void;
+  showOnboarding: boolean;
+  setShowOnboarding: (show: boolean) => void;
 };
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -32,13 +45,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [firstGenMode, setFirstGenMode] = useState(false);
   const [language, setLanguageState] = useState<Language>("en");
   const [userLocation, setUserLocationState] = useState("");
+  const [profile, setProfileState] = useState<StudentProfile>(emptyProfile);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Load from Supabase if logged in, else localStorage
   useEffect(() => {
     if (user && supabase) {
       supabase
         .from("user_progress")
-        .select("saved, statuses, location, first_gen_mode, language")
+        .select("saved, statuses, location, first_gen_mode, language, profile")
         .eq("user_id", user.id)
         .single()
         .then(({ data }) => {
@@ -48,6 +63,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             if (data.location) setUserLocationState(data.location);
             if (data.first_gen_mode != null) setFirstGenMode(data.first_gen_mode);
             if (data.language) setLanguageState(data.language as Language);
+            const p = (data.profile as StudentProfile | null) || emptyProfile;
+            setProfileState(p);
+            if (!p.onboarded) setShowOnboarding(true);
           }
         });
     } else {
@@ -59,11 +77,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const fg = localStorage.getItem("firstGenMode");
         const lang = localStorage.getItem("language");
         const loc = localStorage.getItem("userLocation");
+        const p = localStorage.getItem("profile");
         if (s) setSaved(JSON.parse(s));
         if (st) setStatuses(JSON.parse(st));
         if (fg) setFirstGenMode(JSON.parse(fg));
         if (lang) setLanguageState(JSON.parse(lang) as Language);
         if (loc) setUserLocationState(loc);
+        const parsed: StudentProfile = p ? JSON.parse(p) : emptyProfile;
+        setProfileState(parsed);
+        if (!parsed.onboarded) setShowOnboarding(true);
       });
     }
   }, [user, supabase]);
@@ -109,6 +131,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     else persist({ language: lang });
   };
 
+  const setProfile = (p: StudentProfile) => {
+    setProfileState(p);
+    if (!user || !supabase) localStorage.setItem("profile", JSON.stringify(p));
+    else persist({ profile: p });
+  };
+
   const setUserLocation = (loc: string) => {
     setUserLocationState(loc);
     if (!user || !supabase) localStorage.setItem("userLocation", loc);
@@ -122,6 +150,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       firstGenMode, toggleFirstGenMode,
       language: language as Language, setLanguage,
       userLocation, setUserLocation,
+      profile, setProfile,
+      showOnboarding, setShowOnboarding,
     }}>
       {children}
     </AppContext.Provider>

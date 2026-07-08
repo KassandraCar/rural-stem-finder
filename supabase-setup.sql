@@ -8,6 +8,7 @@ create table if not exists public.user_progress (
   location    text      default '',
   first_gen_mode boolean default false,
   language    text      default 'en',
+  profile     jsonb     default '{}',
   updated_at  timestamptz default now()
 );
 
@@ -25,3 +26,6 @@ create policy "Users can upsert own progress"
 create policy "Users can update own progress"
   on public.user_progress for update
   using (auth.uid() = user_id);
+
+-- Migration for existing databases (safe to re-run):
+alter table public.user_progress add column if not exists profile jsonb default '{}';
