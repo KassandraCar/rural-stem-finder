@@ -13,6 +13,14 @@ export default function AuthPage() {
   const supabase = createClient();
   const { language } = useApp();
 
+  const [mode, setMode] = useState<Mode>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+
   if (!isSupabaseConfigured() || !supabase) {
     return (
       <PageContainer>
@@ -37,14 +45,6 @@ export default function AuthPage() {
       </PageContainer>
     );
   }
-
-  const [mode, setMode] = useState<Mode>("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
 
   const copy: Record<string, {
     loginTitle: string; loginSub: string; signupTitle: string; signupSub: string;

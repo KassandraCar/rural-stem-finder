@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { opportunities } from "@/data/opportunities";
 import OpportunityCard from "@/components/OpportunityCard";
@@ -22,10 +22,13 @@ function OpportunitiesContent() {
     search: "",
   });
 
-  useEffect(() => {
-    const type = searchParams.get("type");
-    if (type) setFilters((f) => ({ ...f, type }));
-  }, [searchParams]);
+  // Sync type filter when the URL query param changes (adjust-state-during-render pattern)
+  const urlType = searchParams.get("type");
+  const [prevUrlType, setPrevUrlType] = useState(urlType);
+  if (urlType && urlType !== prevUrlType) {
+    setPrevUrlType(urlType);
+    setFilters((f) => ({ ...f, type: urlType }));
+  }
 
   // Use ranking system instead of simple filtering
   const rankedOpportunities = useMemo(() => {

@@ -2,7 +2,7 @@
   "mcpServers": {
     "local-opportunity-server": {
       "command": "node",
-      "args": ["mcp-opportunity-server/server.js"],
+      "args": ["mcp-server.js"],
       "disabled": false,
       "autoApprove": ["search_stem_opportunities", "simplify_opportunity"]
     }

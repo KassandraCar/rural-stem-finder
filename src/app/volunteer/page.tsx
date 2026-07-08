@@ -131,7 +131,6 @@ export default function VolunteerPage() {
   const localOpps = volunteerOpportunities.filter(
     (o) => o.locationKeywords.length > 0 && o.locationKeywords.some((kw) => locationLower.includes(kw))
   );
-  const remoteOpps = volunteerOpportunities.filter((o) => o.locationKeywords.length === 0);
 
   const allFiltered = volunteerOpportunities.filter((o) => {
     const matchesLocation =
